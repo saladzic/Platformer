@@ -21,7 +21,7 @@ public class Platformer extends JFrame {
 	private static final boolean DEBUG = true;
 	private int scrollX = 0;
 	private static final int SCROLL_SPEED = 15;
-	private Level level;
+	private final Level level;
 	private BufferedImage currentLevelImage;
 
 	BufferedImage levelImg;
@@ -57,8 +57,9 @@ public class Platformer extends JFrame {
 		try {
 			levelImg = ImageIO.read(selectedFile);
 			level = new Level(levelImg);
+			currentLevelImage = level.getLevelImage();
 
-			this.setBounds(0, 0, 1000, 350);
+			this.setBounds(0, 0, 1000, currentLevelImage.getHeight());
 			this.setResizable(false);
 			this.setVisible(true);
 
@@ -81,8 +82,9 @@ public class Platformer extends JFrame {
 					}
 				}
 			});
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("Level could not be loaded");
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -95,7 +97,6 @@ public class Platformer extends JFrame {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		this.setBounds(0, 0, 1000, currentLevelImage.getHeight());
 		g2d.drawImage(currentLevelImage, -scrollX, 0, null);
 	}
 }
