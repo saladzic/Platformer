@@ -1,3 +1,5 @@
+import collision.Tile;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -61,6 +63,8 @@ public class Platformer extends JFrame {
 			offsetX = 0;
 			maxOffsetX = currentLevelImage.getWidth() - 1000;
 
+			Tile[][] levelParts = level.getLevelParts();
+
 			this.setBounds(0, 0, 1000, currentLevelImage.getHeight());
 			this.setResizable(false);
 			this.setVisible(true);
@@ -74,21 +78,21 @@ public class Platformer extends JFrame {
 					if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 						// check if player moves out of map
 						if (player.getPosition().x - player.getSpeed() > 0)
-							player.move(-1, 0).forEach(i -> repaint()); // is not out of map after next move
+							player.move(-1, 0, levelParts).forEach(i -> repaint()); // is not out of map after next move
 						else if (player.getPosition().x > 0)
-							player.move(-1, 0, player.getPosition().x).forEach(i -> repaint());
+							player.move(-1, 0, player.getPosition().x, levelParts).forEach(i -> repaint());
 					} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 						// check if player moves out of map
 						if (player.getPosition().x + player.getPlayerWidth() + player.getSpeed() <= levelWidth)
-							player.move(1, 0).forEach(i -> repaint());
+							player.move(1, 0, levelParts).forEach(i -> repaint());
 						else if (player.getPosition().x + player.getPlayerWidth() < levelWidth)
-							player.move(1, 0, levelWidth - player.getPosition().x - player.getPlayerWidth()).forEach(i -> repaint());
+							player.move(1, 0, levelWidth - player.getPosition().x - player.getPlayerWidth(), levelParts).forEach(i -> repaint());
 					} else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_SPACE) {
 						// check if player moves out of map
 						if (player.getPosition().y + player.getSpeed() <= levelWidth)
-							player.move(0, 1).forEach(i -> repaint());
+							player.move(0, 1, levelParts).forEach(i -> repaint());
 						else if (player.getPosition().y < levelHeight)
-							player.move(0, 1, levelHeight - player.getPosition().y).forEach(i -> repaint());
+							player.move(0, 1, levelHeight - player.getPosition().y, levelParts).forEach(i -> repaint());
 					}
 				}
 			});

@@ -1,3 +1,7 @@
+import collision.BoundingBox;
+import collision.Tile;
+import utils.Size;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -10,16 +14,20 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Player {
     private final List<BufferedImage> animation;
+    private BoundingBox collision;
     private int currentState;
     private float positionX;
     private float positionY;
     private boolean facingLeft;
     private final float movementSpeed;
+    private final Size playerSize = new Size(70, 70);
 
     public Player() {
+        collision = new BoundingBox(new Size(0, 0), playerSize);
         animation = new ArrayList<>();
         currentState = 0;
         positionX = 0f;
@@ -40,20 +48,45 @@ public class Player {
         }
     }
 
-    public List<BufferedImage> move(int deltaX, int deltaY) {
-        return move(deltaX, deltaY, movementSpeed);
+    public List<BufferedImage> move(int deltaX, int deltaY, Tile[][] levelParts) {
+        return move(deltaX, deltaY, movementSpeed, levelParts);
     }
 
-    public List<BufferedImage> move(int deltaX, int deltaY, float speed) {
+    public List<BufferedImage> move(int deltaX, int deltaY, float speed, Tile[][] levelParts) {
         currentState++;
+
         if (currentState >= animation.size())
             currentState = 0;
         if (deltaX < 0) {
             facingLeft = true;
-            positionX = positionX - speed;
+
+            BoundingBox futureCollision = new BoundingBox(
+                    new Size(positionY, positionX - speed),
+                    new Size(positionY + playerSize.y, positionX - speed + playerSize.x)
+            );
+
+            Tile collisionWith = checkCollision(levelParts, futureCollision);
+            if (Objects.isNull(collisionWith)) {
+                positionX = positionX - speed;
+            } else {
+                positionX = collisionWith.getCollision().min.x - 1;
+            }
+
         } else if (deltaX > 0) {
-            positionX = positionX + speed;
-            facingLeft = false;
+            facingLeft = true;
+
+            BoundingBox futureCollision = new BoundingBox(
+                    new Size(positionY, positionX + speed),
+                    new Size(positionY + playerSize.y, positionX - speed + playerSize.x)
+            );
+
+            Tile collisionWith = checkCollision(levelParts, futureCollision);
+            if (Objects.isNull(collisionWith)) {
+                positionX = positionX + speed;
+            } else {
+                positionX = collisionWith.getCollision().max.x - 1;
+            }
+
         }
 
         if (deltaY < 0) {
@@ -62,6 +95,15 @@ public class Player {
             positionY = positionY + speed;
         }
         return animation;
+    }
+
+    private Tile checkCollision(Tile[][] levelParts, BoundingBox collision) {
+        int test = (int) Math.ceil(((double) positionX) / 1000);
+        for (Tile tile : levelParts[(int) Math.ceil(((double) positionX) / 1000)]) {
+            if (!(Objects.isNull(tile)) && collision.intersect(tile.getCollision()))
+                return tile;
+        }
+        return null;
     }
 
     public BufferedImage getImage() {
