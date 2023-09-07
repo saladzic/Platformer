@@ -1,5 +1,6 @@
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +13,8 @@ public class Level {
     private BufferedImage tileLiquidBlock;
     private BufferedImage tileGrass;
     private BufferedImage tileDirt;
+    private int renderWidth;
+    private int renderHeight;
 
     public Level(BufferedImage levelImage) {
         try {
@@ -20,8 +23,8 @@ public class Level {
             tileLiquidBlock = ImageIO.read(new File("./assets/Tiles/liquidWater.png"));
             tileGrass = ImageIO.read(new File("./assets/Tiles/grassMid.png"));
             tileDirt = ImageIO.read(new File("./assets/Tiles/grassCenter.png"));
-            int renderWidth = levelImage.getWidth() * tileLiquidWater.getWidth();
-            int renderHeight = levelImage.getHeight() * tileLiquidWater.getHeight();
+            renderWidth = levelImage.getWidth() * tileLiquidWater.getWidth();
+            renderHeight = levelImage.getHeight() * tileLiquidWater.getHeight();
             backgroundImage = Background.loadBackgroundImage(renderWidth, renderHeight);
             renderImage = new BufferedImage(
                     levelImage.getWidth() * tileLiquidWater.getWidth(),
