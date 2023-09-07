@@ -1,4 +1,7 @@
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineEvent;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -15,12 +18,15 @@ import java.io.Serial;
 public class Platformer extends JFrame {
 	@Serial
 	private static final long serialVersionUID = 5736902251450559962L;
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private int offsetX;
 	private final int maxOffsetX;
 	private final Level level;
 	private BufferedImage currentLevelImage;
 	private final Player player;
+	private Clip clip;
+	private final File introSoundFile;
+	private final File jumpSoundFile;
 
 	BufferedImage levelImg;
 
@@ -32,8 +38,13 @@ public class Platformer extends JFrame {
 			}
 		});
 
+		introSoundFile = new File("./assets/Sound/soundtrack.wav");
+		jumpSoundFile = new File("./assets/Sound/jump1.wav");
+
 		File selectedFile;
 		if (!DEBUG) {
+			playIntroSound();
+
 			JFileChooser fc = new JFileChooser();
 			fc.setCurrentDirectory(new File("./"));
 			fc.setDialogTitle("Select input image");
@@ -61,6 +72,10 @@ public class Platformer extends JFrame {
 			offsetX = 0;
 			maxOffsetX = currentLevelImage.getWidth() - 1000;
 
+			// stop intro sound
+			clip.stop();
+			clip.close();
+
 			this.setBounds(0, 0, 1000, currentLevelImage.getHeight());
 			this.setResizable(false);
 			this.setVisible(true);
@@ -85,16 +100,45 @@ public class Platformer extends JFrame {
 							player.move(1, 0, levelWidth - player.getPosition().x - player.getPlayerWidth()).forEach(i -> repaint());
 					} else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_SPACE) {
 						// check if player moves out of map
-						if (player.getPosition().y + player.getSpeed() <= levelWidth)
+						if (player.getPosition().y + player.getSpeed() <= levelWidth) {
 							player.move(0, 1).forEach(i -> repaint());
-						else if (player.getPosition().y < levelHeight)
+							playJumpSound();
+						} else if (player.getPosition().y < levelHeight) {
 							player.move(0, 1, levelHeight - player.getPosition().y).forEach(i -> repaint());
+							playJumpSound();
+						}
 					}
 				}
 			});
 		} catch (IOException e) {
 			System.out.println("Level could not be loaded");
 			throw new RuntimeException(e);
+		}
+	}
+
+	public void playIntroSound(){
+		try{
+			clip = AudioSystem.getClip();
+			clip.open(AudioSystem.getAudioInputStream(introSoundFile));
+			clip.loop(Clip.LOOP_CONTINUOUSLY);
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	public void playJumpSound(){
+		try{
+			Clip clip = AudioSystem.getClip();
+			clip.open(AudioSystem.getAudioInputStream(jumpSoundFile));
+			// add a listener to handle the clip when it finishes playing
+			clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    clip.close(); // Close the clip to release resources
+                }
+            });
+			clip.start();
+		} catch (Exception e){
+			e.printStackTrace();
 		}
 	}
 
