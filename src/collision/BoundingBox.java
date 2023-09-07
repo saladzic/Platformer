@@ -1,26 +1,27 @@
-public class BoundingBox {
-    private final float minX, minY, maxX, maxY;
+package collision;
 
-    public BoundingBox(float minX, float minY, float maxX, float maxY) {
-        this.minX = minX;
-        this.minY = minY;
-        this.maxX = maxX;
-        this.maxY = maxY;
+import utils.Size;
+
+public class BoundingBox {
+    private final Size min, max;
+    public BoundingBox(Size min, Size max) {
+        this.min = min;
+        this.max = max;
     }
 
     public boolean intersect(BoundingBox b) {
-        return (minX <= b.maxX) && (maxX >= b.minX) && (minY <= b.maxY) && (maxY >= b.minY);
+        return (min.x <= b.max.x) && (max.x >= b.min.x) && (min.y <= b.max.y) && (max.y >= b.min.y);
     }
 
     public Vec2 overlapSize(BoundingBox b) {
         Vec2 result = new Vec2(0, 0);
         // X-dimension
-        if (minX < b.minX) result.x = maxX - b.minX;
+        if (min.x < b.min.x) result.x = max.x - b.min.x;
         else
-            result.x = b.maxX - minX;
+            result.x = b.max.x - min.x;
         // Y-dimension
-        if (minY < b.minY) result.y = maxY - b.minY;
+        if (min.y < b.min.y) result.y = max.y - b.min.y;
         else
-            result.y = b.maxY - minY;
+            result.y = b.max.y - min.y;
         return result; }
 }

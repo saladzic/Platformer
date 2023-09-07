@@ -1,3 +1,5 @@
+import collision.Tile;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -45,24 +47,18 @@ public class Level {
 
         int tileWidth = tileLiquidWater.getWidth();
         int tileHeight = tileLiquidWater.getHeight();
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                Color pixelColor = new Color(levelImage.getRGB(x, y));
-                if (pixelColor.equals(Color.BLUE)) {
-                    // Set water block
-                    g2d.drawImage(tileLiquidBlock, x * tileWidth, y * tileHeight, null);
-                } else if (pixelColor.equals(new Color(0, 150, 255))) {
-                    // Set water top block
-                    g2d.drawImage(tileLiquidWater, x * tileWidth, y * tileHeight, null);
-                } else if (pixelColor.equals(new Color(0, 255, 0))) {
-                    // Set tileGrass
-                    g2d.drawImage(tileDirt, x * tileWidth, y * tileHeight, null);
-                } else if (pixelColor.equals(Color.BLACK)) {
-                    // Set tileGrass
-                    g2d.drawImage(tileGrass, x * tileWidth, y * tileHeight, null);
-                }
-            }
-        }
+       for (int x = 0; x < width; x++) {
+           for (int y = 0; y < height; y++) {
+               Color pixelColor = new Color(levelImage.getRGB(x, y));
+               for (Tile tile : Tiles.getTiles) {
+                   if (pixelColor == tile.getColor()) {
+                       tile.render(g2d, x, y);
+                   }
+               }
+           }
+       }
+
+
         g2d.dispose();
     }
 
