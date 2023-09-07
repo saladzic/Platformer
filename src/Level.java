@@ -1,4 +1,5 @@
 import collision.Tile;
+import utils.Tiles;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -45,13 +46,17 @@ public class Level {
         Graphics2D g2d = renderImage.createGraphics();
         g2d.drawImage(backgroundImage, 0, 0, null);
 
-        int tileWidth = tileLiquidWater.getWidth();
-        int tileHeight = tileLiquidWater.getHeight();
-       for (int x = 0; x < width; x++) {
+        Tile[] tiles = Tiles.getTiles();
+
+
+        for (int x = 0; x < width; x++) {
            for (int y = 0; y < height; y++) {
                Color pixelColor = new Color(levelImage.getRGB(x, y));
-               for (Tile tile : Tiles.getTiles) {
-                   if (pixelColor == tile.getColor()) {
+               if (pixelColor.equals(Color.WHITE))
+                   continue;
+
+               for (Tile tile : tiles) {
+                   if (pixelColor.equals(tile.getColor())) {
                        tile.render(g2d, x, y);
                    }
                }
