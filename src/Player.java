@@ -86,4 +86,8 @@ public class Player {
     public float getSpeed() {
         return movementSpeed;
     }
+
+    public int getPlayerWidth() {
+        return animation.get(0).getWidth();
+    }
 }
